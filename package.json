@@ -4,7 +4,7 @@
   "description": "Implementation of https://www.tabnew.com.br to practice end-to-end programming.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev"
   },
   "author": "",
   "license": "MIT",
