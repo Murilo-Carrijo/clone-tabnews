@@ -4,7 +4,7 @@
   "description": "Implementation of https://www.tabnew.com.br to practice end-to-end programming.",
   "main": "index.js",
   "scripts": {
-    "dev": "next dev",
+    "dev": "npm run service:up && next dev",
     "lint:check": "prettier --check .",
     "lint:fix": "prettier --write .",
     "test": "jest",
