@@ -14,13 +14,11 @@ const status = async (_req, res) => {
   });
   const openConnections = dbOpenConnections.rows[0].count;
 
-
-
   return res.status(200).json({
     update_at: updateAt,
     server_version: serverVersion,
     max_connections: Number(maxConnections),
-    open_connections: Number(openConnections)
+    open_connections: Number(openConnections),
   });
 };
 
