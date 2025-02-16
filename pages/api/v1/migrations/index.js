@@ -5,7 +5,9 @@ import database from "infra/database";
 const migrations = async (req, res) => {
   const allawerdMethods = ["GET", "POST"];
   if (!allawerdMethods.includes(req.method)) {
-    return res.status(405).json({ message: `Method ${req.method} not allowed` });
+    return res
+      .status(405)
+      .json({ message: `Method ${req.method} not allowed` });
   }
 
   let dbClient;
@@ -18,7 +20,7 @@ const migrations = async (req, res) => {
       direction: "up",
       verbose: true,
       migrationsTable: "pgmigrations",
-    }
+    };
 
     if (req.method === "GET") {
       const pendingMigrations = await migrationRunner(defaultMigratinsOptions);
@@ -35,7 +37,6 @@ const migrations = async (req, res) => {
         return res.status(201).json(migratedMigrations);
       }
       return res.status(200).json(migratedMigrations);
-
     }
   } catch (error) {
     console.error(error);
@@ -43,8 +44,6 @@ const migrations = async (req, res) => {
   } finally {
     await dbClient.end();
   }
-
 };
-
 
 export default migrations;
