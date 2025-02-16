@@ -1,8 +1,9 @@
-const { exev, exec } = require("node:child_process");
+const {  exec } = require("node:child_process");
 
 const checkPostgres = () => {
   exec(
     "docker exec postgres-dev pg_isready --host localhost",
+    /* eslint-disable no-unused-vars */
     (_error, stdout, _stderr) => {
       if (stdout.search("accepting connections") === -1) {
         process.stdout.write(".");
