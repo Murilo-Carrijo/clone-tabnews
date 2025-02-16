@@ -30,5 +30,5 @@ const getNewClient = async () => {
 
 export default {
   query,
-  getNewClient
+  getNewClient,
 };
