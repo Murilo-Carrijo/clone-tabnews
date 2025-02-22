@@ -8,17 +8,16 @@ const waitForAllServices = async () => {
         throw new Error("Service is not ready yet");
       }
     };
-    return retry(
-      fetchStatusPage,
-      {
-        retries: 100,
-        maxTimeout: 1000,
-      }
-    );
+    return retry(fetchStatusPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
   };
   await waitForWebServices();
 };
 
-export default {
+const orchestrator = {
   waitForAllServices,
 };
+
+export default orchestrator;
