@@ -4,7 +4,8 @@
   "description": "Implementation of https://www.tabnew.com.br to practice end-to-end programming.",
   "main": "index.js",
   "scripts": {
-    "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && next dev",
+    "predev": "chmod +x wait_for_exit.sh",
+    "dev": "npm run services:up && npm run services:wait:database && npm run migrations:up && concurrently -k -s first -n next,down_docker \"next dev\" \"./wait_for_exit.sh\" ",
     "test": "npm run services:up && concurrently -n next,jest --hide next -k -s command-jest \"next dev\" \"jest --runInBand --verbose\"",
     "posttest": "npm run services:down",
     "test:watch": "jest --watchAll --runInBand",
