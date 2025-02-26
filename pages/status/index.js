@@ -27,21 +27,22 @@ const DataStatus = () => {
   const { isLoading, data } = useSWR("/api/v1/status", fetchApi, {
     refreshInterval: 2000,
   });
-  console.log(isLoading);
-  console.log(data);
-  let updateAtText = "Carregando...";
-  let maxconnections = "Carregando...";
-  let openConnections = "Carregando...";
-  let avebleConnections = "Carregando...";
-  let serverVersion = "Carregando...";
 
-  if (!isLoading && data) {
-    updateAtText = new Date(data.update_at).toLocaleDateString("pt-BR");
-    maxconnections = data.max_connections;
-    openConnections = data.open_connections;
-    avebleConnections = maxconnections - openConnections;
-    serverVersion = data.server_version;
-  }
+  const isDataAvailable = !isLoading && data;
+
+  const updateAtText = isDataAvailable
+    ? new Date(data.update_at).toLocaleDateString("pt-BR")
+    : "Carregando...";
+  const maxconnections = isDataAvailable
+    ? data.max_connections
+    : "Carregando...";
+  const openConnections = isDataAvailable
+    ? data.open_connections
+    : "Carregando...";
+  const avebleConnections = isDataAvailable
+    ? maxconnections - openConnections
+    : "Carregando...";
+  const serverVersion = isDataAvailable ? data.server_version : "Carregando...";
 
   return (
     <div
@@ -57,27 +58,17 @@ const DataStatus = () => {
         height: "200px",
       }}
     >
-      <div style={{ marginLeft: "9rem" }}>
-        {" "}
-        <b>Última atualização:</b> {updateAtText}{" "}
-      </div>
-      <div style={{ marginLeft: "9rem" }}>
-        {" "}
-        <b>Maximo de conexões permitidas:</b> {maxconnections}{" "}
-      </div>
-      <div style={{ marginLeft: "9rem" }}>
-        {" "}
-        <b>Número e conexões abertas:</b> {openConnections}{" "}
-      </div>
-      <div style={{ marginLeft: "9rem" }}>
-        {" "}
-        <b>Número e conexões disponíves:</b> {avebleConnections}{" "}
-      </div>
-      <div style={{ marginLeft: "9rem" }}>
-        {" "}
-        <b>Versão do servido: </b>
-        {serverVersion}{" "}
-      </div>
+      {[
+        ["Última atualização:", updateAtText],
+        ["Maximo de conexões permitidas:", maxconnections],
+        ["Número e conexões abertas:", openConnections],
+        ["Número e conexões disponíves:", avebleConnections],
+        ["Versão do servido:", serverVersion],
+      ].map(([label, value], index) => (
+        <div key={index} style={{ marginLeft: "9rem" }}>
+          <b>{label}</b> {value}
+        </div>
+      ))}
     </div>
   );
 };
