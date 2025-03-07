@@ -1,49 +1,60 @@
+import { createRouter } from "next-connect";
 import migrationRunner from "node-pg-migrate";
 import { resolve } from "node:path";
 import database from "infra/database";
+import controller from "infra/controller";
 
-const migrations = async (req, res) => {
-  const allawerdMethods = ["GET", "POST"];
-  if (!allawerdMethods.includes(req.method)) {
-    return res
-      .status(405)
-      .json({ message: `Method ${req.method} not allowed` });
-  }
+const router = createRouter();
 
-  let dbClient;
-  try {
-    dbClient = await database.getNewClient();
-    const defaultMigratinsOptions = {
-      dbClient: dbClient,
-      driRun: true,
-      dir: resolve("infra", "migrations"),
-      direction: "up",
-      verbose: true,
-      migrationsTable: "pgmigrations",
-    };
-
-    if (req.method === "GET") {
-      const pendingMigrations = await migrationRunner(defaultMigratinsOptions);
-      return res.status(200).json(pendingMigrations);
-    }
-
-    if (req.method === "POST") {
-      const migratedMigrations = await migrationRunner({
-        ...defaultMigratinsOptions,
-        dryRun: false,
-      });
-
-      if (migratedMigrations.length > 0) {
-        return res.status(201).json(migratedMigrations);
-      }
-      return res.status(200).json(migratedMigrations);
-    }
-  } catch (error) {
-    console.error(error);
-    throw error;
-  } finally {
-    await dbClient.end();
-  }
+const openConnectionMiddleware = async (req, res, next) => {
+  let dbClient = await database.getNewClient();
+  const defaultMigratinsOptions = {
+    dbClient: dbClient,
+    driRun: true,
+    dir: resolve("infra", "migrations"),
+    direction: "up",
+    verbose: true,
+    migrationsTable: "pgmigrations",
+  };
+  req.dbClient = dbClient;
+  req.defaultMigratinsOptions = defaultMigratinsOptions;
+  next();
 };
 
-export default migrations;
+const getHendler = async (req, res) => {
+  const defaultMigratinsOptions = req.defaultMigratinsOptions;
+  const pendingMigrations = await migrationRunner(defaultMigratinsOptions);
+  return res.status(200).json(pendingMigrations);
+};
+
+const postHandler = async (req, res) => {
+  const defaultMigratinsOptions = req.defaultMigratinsOptions;
+
+  const migratedMigrations = await migrationRunner({
+    ...defaultMigratinsOptions,
+    dryRun: false,
+  });
+
+  if (migratedMigrations.length > 0) {
+    return res.status(201).json(migratedMigrations);
+  }
+  return res.status(200).json(migratedMigrations);
+};
+
+const closeDbClientMiddleware = async (req, res, next) => {
+  res.on("finish", async () => {
+    if (req.dbClient) {
+      await req.dbClient.end();
+      req.dbClient = null;
+    }
+  });
+  next();
+};
+
+router
+  .use(openConnectionMiddleware)
+  .use(closeDbClientMiddleware)
+  .get(getHendler)
+  .post(postHandler);
+
+export default router.handler(controller.errorHandler);
