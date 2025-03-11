@@ -10,16 +10,13 @@ const getHendler = async (_req, res) => {
 };
 
 const postHandler = async (_req, res) => {
-  const migratedMigrations = await migrator.runPendingMigrations()
+  const migratedMigrations = await migrator.runPendingMigrations();
   if (migratedMigrations.length > 0) {
     return res.status(201).json(migratedMigrations);
   }
   return res.status(200).json(migratedMigrations);
 };
 
-
-router
-  .get(getHendler)
-  .post(postHandler);
+router.get(getHendler).post(postHandler);
 
 export default router.handler(controller.errorHandler);

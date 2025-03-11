@@ -19,13 +19,13 @@ const listPendingMigrations = async () => {
       ...defaultMigratinsOptions,
       dbClient,
     });
-    console.log('pendingMigrations', pendingMigrations);
+    console.log("pendingMigrations", pendingMigrations);
 
     return pendingMigrations;
   } finally {
     await dbClient?.end();
   }
-}
+};
 
 const runPendingMigrations = async () => {
   let dbClient;
@@ -41,11 +41,11 @@ const runPendingMigrations = async () => {
   } finally {
     await dbClient?.end();
   }
-}
+};
 
 const migrator = {
   listPendingMigrations,
-  runPendingMigrations
-}
+  runPendingMigrations,
+};
 
 export default migrator;
