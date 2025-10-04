@@ -55,17 +55,20 @@ describe("POST /api/v1/users", () => {
 
       expect(response.status).toBe(201);
 
-      const responseDuplicate = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const responseDuplicate = await fetch(
+        "http://localhost:3000/api/v1/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: "duplicateemail2",
+            email: "duplicate@test.com",
+            password: "123456",
+          }),
         },
-        body: JSON.stringify({
-          username: "duplicateemail2",
-          email: "duplicate@test.com",
-          password: "123456",
-        }),
-      });
+      );
 
       expect(responseDuplicate.status).toBe(400);
 
@@ -75,7 +78,8 @@ describe("POST /api/v1/users", () => {
         status_code: 400,
         name: "ValidationError",
         message: "O nome de usuario ou email informado ja esta sendo utilizado",
-        action: "Utilize outro nome de usuario ou email para realizar o cadastro",
+        action:
+          "Utilize outro nome de usuario ou email para realizar o cadastro",
       });
     });
 
@@ -94,17 +98,20 @@ describe("POST /api/v1/users", () => {
 
       expect(response.status).toBe(201);
 
-      const responseDuplicate = await fetch("http://localhost:3000/api/v1/users", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const responseDuplicate = await fetch(
+        "http://localhost:3000/api/v1/users",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username: "duplicateemail",
+            email: "duplicate@testt.com",
+            password: "123456",
+          }),
         },
-        body: JSON.stringify({
-          username: "duplicateemail",
-          email: "duplicate@testt.com",
-          password: "123456",
-        }),
-      });
+      );
 
       expect(responseDuplicate.status).toBe(400);
 
@@ -114,7 +121,8 @@ describe("POST /api/v1/users", () => {
         status_code: 400,
         name: "ValidationError",
         message: "O nome de usuario ou email informado ja esta sendo utilizado",
-        action: "Utilize outro nome de usuario ou email para realizar o cadastro",
+        action:
+          "Utilize outro nome de usuario ou email para realizar o cadastro",
       });
     });
   });
