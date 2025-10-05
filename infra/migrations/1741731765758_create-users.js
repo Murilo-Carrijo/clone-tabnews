@@ -6,7 +6,7 @@ exports.up = (pgm) => {
       default: pgm.func("gen_random_uuid()"),
     },
 
-    // For reference, GitHub usernames can have up to 39 characters.
+    // For reference, GitHub limits usernames can have up to 39 characters.
     username: {
       type: "varchar(30)",
       notNull: true,
@@ -20,21 +20,23 @@ exports.up = (pgm) => {
       unique: true,
     },
 
-    // Why to use varchar(72) for password? https://security.stackexchange.com/a/398
+    // Why to use varchar(60) for password? https://www.npmjs.com/package/bcrypt#hash-info
     password: {
-      type: "varchar(72)",
+      type: "varchar(60)",
       notNull: true,
     },
 
     // Why to use timestamptz instead of timestamp? https://stackoverflow.com/a/2535927
     created_at: {
       type: "timestamptz",
-      default: pgm.func("now()"),
+      notNull: true,
+      default: pgm.func("timezone('utc', now())"),
     },
 
     updated_at: {
       type: "timestamptz",
-      default: pgm.func("now()"),
+      notNull: true,
+      default: pgm.func("timezone('utc', now())"),
     },
   });
 };
