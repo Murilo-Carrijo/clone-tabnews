@@ -35,7 +35,7 @@ describe("GET /api/v1/users/[username]", () => {
         id: getResponseBody.id,
         username: "MesmoCase",
         email: "mesmo.case@test.com",
-        password: "123456",
+        password: getResponseBody.password,
         created_at: getResponseBody.created_at,
         updated_at: getResponseBody.updated_at,
       });
@@ -70,7 +70,7 @@ describe("GET /api/v1/users/[username]", () => {
         id: getResponseBody.id,
         username: "CaseDiferente",
         email: "case.diferente@test.com",
-        password: "123456",
+        password: getResponseBody.password,
         created_at: getResponseBody.created_at,
         updated_at: getResponseBody.updated_at,
       });

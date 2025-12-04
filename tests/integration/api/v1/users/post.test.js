@@ -1,5 +1,9 @@
 import { version as uuidVersion } from "uuid";
 import orchestrator from "tests/orchestrator";
+import user from "models/user";
+import password from "models/password";
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.development" });
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -30,7 +34,7 @@ describe("POST /api/v1/users", () => {
         id: responseBody.id,
         username: "murilohcpaulino",
         email: "murilocarrijoadm@test.com",
-        password: "123456",
+        password: responseBody.password,
         created_at: responseBody.created_at,
         updated_at: responseBody.updated_at,
       });
@@ -38,6 +42,13 @@ describe("POST /api/v1/users", () => {
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.created_at)).not.toBeNaN();
       expect(Date.parse(responseBody.updated_at)).not.toBeNaN();
+
+      const userInDatabase = await user.findOneByUsername('murilohcpaulino');
+      const correctPasswordMatch = await password.compare(`123456${process.env.PEPPER}`, userInDatabase.password);
+      expect(correctPasswordMatch).toBe(true);
+
+      const incorrectPasswordMatch = await password.compare("1234568910", userInDatabase.password);
+      expect(incorrectPasswordMatch).toBe(false);
     });
 
     test("Whit duplicated 'email'", async () => {
