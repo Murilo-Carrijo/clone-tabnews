@@ -1,4 +1,5 @@
 import database from "infra/database";
+import password from "models/password.js";
 import { NotFoundError, ValidationError } from "infra/errors";
 
 const runInsertQuery = async (userInputValues) => {
@@ -38,14 +39,19 @@ const validateUniqUser = async (userInputValues) => {
   if (user.rowCount > 0) {
     throw new ValidationError({
       message: "O nome de usuario ou email informado ja esta sendo utilizado",
-      action: "Utilize outro nome de usuario ou email para realizar o cadastro",
+      action: "Utilize outro nome de usuario ou email para esta operação.",
     });
   }
 };
 
+const hashPasswordInObject = async (userInputValues) => {
+  const hashedPassword = await password.hash(userInputValues.password);
+  userInputValues.password = hashedPassword;
+};
+
 const create = async (userInputValues) => {
   await validateUniqUser(userInputValues);
-
+  await hashPasswordInObject(userInputValues);
   const newUser = await runInsertQuery(userInputValues);
 
   return newUser.rows[0];
@@ -79,9 +85,59 @@ const runSelectQuery = async (username) => {
   return user.rows[0];
 };
 
+const runUpdateQuery = async (userWithNewValues) => {
+  const results = await database.query({
+    text: `
+      UPDATE
+        users
+      SET
+        username= $2,
+        email = $3,
+        password = $4,
+        updated_at = timezone('utc', now())
+      WHERE
+        id = $1
+      RETURNING
+        *
+    `,
+    values: [
+      userWithNewValues.id,
+      userWithNewValues.username,
+      userWithNewValues.email,
+      userWithNewValues.password,
+    ],
+  });
+
+  return results.rows[0];
+};
+
+const update = async (username, userInputValues) => {
+  const currentUser = await findOneByUsername(username);
+  const checkUsername =
+    "username" in userInputValues && username != userInputValues.username;
+  const checkEmail =
+    "email" in userInputValues && currentUser.email != userInputValues.email;
+  if (checkUsername || checkEmail) {
+    await validateUniqUser(userInputValues);
+  }
+
+  if ("password" in userInputValues) {
+    await hashPasswordInObject(userInputValues);
+  }
+
+  const userWithNewValues = {
+    ...currentUser,
+    ...userInputValues,
+  };
+
+  const updateUser = await runUpdateQuery(userWithNewValues);
+  return updateUser;
+};
+
 const user = {
   create,
   findOneByUsername,
+  update,
 };
 
 export default user;
