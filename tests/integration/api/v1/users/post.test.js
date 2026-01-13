@@ -45,7 +45,7 @@ describe("POST /api/v1/users", () => {
 
       const userInDatabase = await user.findOneByUsername("murilohcpaulino");
       const correctPasswordMatch = await password.compare(
-        `123456${process.env.PEPPER}`,
+        `123456`,
         userInDatabase.password,
       );
       expect(correctPasswordMatch).toBe(true);
