@@ -6,7 +6,10 @@ const hash = async (password) => {
 };
 
 const compare = async (providedPassword, soteredPassword) => {
-  return await bcryptjs.compare(providedPassword, soteredPassword);
+  return await bcryptjs.compare(
+    `${providedPassword}${process.env.PEPPER}`,
+    soteredPassword,
+  );
 };
 
 const password = {

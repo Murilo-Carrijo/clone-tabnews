@@ -85,6 +85,34 @@ const runSelectQuery = async (username) => {
   return user.rows[0];
 };
 
+const findOneByEmail = async (email) => {
+  const userFound = await runSelectQueryEmail(email);
+  return userFound;
+};
+
+const runSelectQueryEmail = async (email) => {
+  const user = await database.query({
+    text: `
+      SELECT
+        *
+      FROM
+        users
+      WHERE
+        LOWER(email) = LOWER($1)
+      LIMIT
+        1
+      ;`,
+    values: [email],
+  });
+  if (user.rowCount === 0) {
+    throw new NotFoundError({
+      message: "O email informado não foi encontrado no sistema.",
+      action: "Verifique se o email está digitado corretamente.",
+    });
+  }
+  return user.rows[0];
+};
+
 const runUpdateQuery = async (userWithNewValues) => {
   const results = await database.query({
     text: `
@@ -137,6 +165,7 @@ const update = async (username, userInputValues) => {
 const user = {
   create,
   findOneByUsername,
+  findOneByEmail,
   update,
 };
 

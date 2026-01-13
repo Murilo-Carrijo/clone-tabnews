@@ -209,7 +209,7 @@ describe("PATCH  /api/v1/users/[username]", () => {
         creatednNewPassword1.username,
       );
       const correctPasswordMatch = await password.compare(
-        `newPassword2${process.env.PEPPER}`,
+        `newPassword2`,
         userInDatabase.password,
       );
       expect(correctPasswordMatch).toBe(true);
