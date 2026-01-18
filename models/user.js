@@ -162,11 +162,40 @@ const update = async (username, userInputValues) => {
   return updateUser;
 };
 
+const findOneById = async (id) => {
+  const userFound = await runSelectByIdQuery(id);
+  return userFound;
+};
+
+const runSelectByIdQuery = async (id) => {
+  const user = await database.query({
+    text: `
+      SELECT
+        *
+      FROM
+        users
+      WHERE
+        id = $1
+      LIMIT
+        1
+      ;`,
+    values: [id],
+  });
+  if (user.rowCount === 0) {
+    throw new NotFoundError({
+      message: "O id informado não foi encontrado no sistema.",
+      action: "Verifique se o id está digitado corretamente.",
+    });
+  }
+  return user.rows[0];
+};
+
 const user = {
   create,
   findOneByUsername,
   findOneByEmail,
   update,
+  findOneById,
 };
 
 export default user;
