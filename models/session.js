@@ -64,6 +64,25 @@ const runUpdateQuery = async (id, expiresAt) => {
   return result.rows[0];
 };
 
+const runDeleteQuery = async (id) => {
+  const result = await database.query({
+    text: `
+      UPDATE
+        sessions
+      SET
+        expires_at = expires_at - interval '1 year',
+        updated_at = NOW()
+      WHERE
+        id = $1
+      RETURNING
+        *
+    ;`,
+    values: [id],
+  });
+
+  return result.rows[0];
+};
+
 const create = async (userId) => {
   const token = crypto.randomBytes(48).toString("hex");
   const expiresAt = new Date(Date.now() + EXPIRATION_IN_MILLISECONDS);
@@ -82,11 +101,16 @@ const renew = async (id) => {
   await runUpdateQuery(id, expiresAt);
 };
 
+const expireById = async (id) => {
+  return await runDeleteQuery(id);
+};
+
 const session = {
   create,
   EXPIRATION_IN_MILLISECONDS,
   findOneValidByToken,
   renew,
+  expireById,
 };
 
 export default session;
