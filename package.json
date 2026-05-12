@@ -33,6 +33,7 @@
     "next": "^15.1.9",
     "next-connect": "1.0.0",
     "node-pg-migrate": "7.9.1",
+    "nodemailer": "^7.0.5",
     "pg": "8.13.3",
     "react": "^19.0.1",
     "react-dom": "^19.0.1",

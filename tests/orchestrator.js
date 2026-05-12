@@ -5,6 +5,8 @@ import migrator from "models/migrator";
 import user from "models/user";
 import session from "models/session";
 
+const emailHttpUrl = `http://${process.env.EMAIL_HTTP_HOST}:${process.env.EMAIL_HTTP_PORT}`;
+
 const waitForAllServices = async () => {
   const waitForWebServices = async () => {
     const fetchStatusPage = async () => {
@@ -18,7 +20,22 @@ const waitForAllServices = async () => {
       maxTimeout: 1000,
     });
   };
+
+  const waitForEmailServices = async () => {
+    const fetchEmailPage = async () => {
+      const response = await fetch(emailHttpUrl);
+      if (response.status !== 200) {
+        throw new Error("Service is not ready yet");
+      }
+    };
+    return retry(fetchEmailPage, {
+      retries: 100,
+      maxTimeout: 1000,
+    });
+  };
+
   await waitForWebServices();
+  await waitForEmailServices();
 };
 
 const clearDatabase = async () => {
@@ -42,12 +59,34 @@ const createSession = async (userId) => {
   return await session.create(userId);
 };
 
+const deleteAllEmails = async () => {
+  await fetch(`${emailHttpUrl}/messages`, {
+    method: "DELETE",
+  });
+};
+
+const getLastEmail = async () => {
+  const emailListResponse = await fetch(`${emailHttpUrl}/messages`);
+  const emailListBody = await emailListResponse.json();
+  const lastEmailItem = emailListBody.at(-1);
+
+  const emailTextResponse = await fetch(
+    `${emailHttpUrl}/messages/${lastEmailItem.id}.plain`,
+  );
+  const emailTextBody = await emailTextResponse.text();
+  lastEmailItem.text = emailTextBody;
+
+  return lastEmailItem;
+};
+
 const orchestrator = {
   waitForAllServices,
   clearDatabase,
   runPendingMigrations,
   createUser,
   createSession,
+  deleteAllEmails,
+  getLastEmail,
 };
 
 export default orchestrator;
