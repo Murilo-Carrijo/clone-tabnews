@@ -194,7 +194,7 @@ const runSelectByIdQuery = async (id) => {
 const insertDefaultFeaturesInObject = (userInputValues) => {
   userInputValues.features = ["read:activation_token"];
   return userInputValues;
-}
+};
 
 const user = {
   create,
