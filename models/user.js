@@ -3,18 +3,19 @@ import password from "models/password.js";
 import { NotFoundError, ValidationError } from "infra/errors";
 
 const runInsertQuery = async (userInputValues) => {
-  const { username, email, password } = userInputValues;
+  insertDefaultFeaturesInObject(userInputValues);
+  const { username, email, password, features } = userInputValues;
 
   const newUser = await database.query({
     text: `
       INSERT INTO
-        users (username, email, password)
+        users (username, email, password, features)
       VALUES
-        ($1, $2, $3)
+        ($1, $2, $3, $4)
       RETURNING
         *
       ;`,
-    values: [username, email, password],
+    values: [username, email, password, features],
   });
 
   return newUser;
@@ -188,6 +189,11 @@ const runSelectByIdQuery = async (id) => {
     });
   }
   return user.rows[0];
+};
+
+const insertDefaultFeaturesInObject = (userInputValues) => {
+  userInputValues.features = ["read:activation_token"];
+  return userInputValues;
 };
 
 const user = {
